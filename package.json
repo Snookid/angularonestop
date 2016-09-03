@@ -1,0 +1,23 @@
+{
+  "name": "angularonestop",
+  "version": "1.0.0",
+  "description": "angular one stop ui",
+  "main": "server.js",
+  "dependencies": {
+    "angular-ui-router": "^0.3.0",
+    "angularfire": "^1.2.0",
+    "async": "^0.2.10",
+    "express": "^3.2.6",
+    "firebase": "^3.0.3",
+    "firebase-bolt": "^0.8.1",
+    "particles.js": "^2.0.0",
+    "socket.io": "^0.9.17"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Resh",
+  "license": "ISC"
+}

@@ -1,0 +1,55 @@
+path / is Ref{
+	read() { isResh() }
+	write() { isGoogle()  || isResh() }
+}
+
+path /analysts {
+  read() { isGoogle() }
+  write() { isResh() }
+}
+
+path /prod/{month}/{uid}/{session} {
+	read() { isCurrentUser(uid) || isResh() || isAdmin() }
+	write() { isCurrentUser(uid) || isResh() }
+}
+
+path /users/{uid} is User {
+	read() { isCurrentUser(uid) || isResh() || isAdmin() }
+	write() { isCurrentUser(uid) || isResh() }
+	index() { 'ldap' }
+}
+
+path /dashboard {
+	read() {isGoogle()}
+	write() {isGoogle() || isResh()}
+}
+
+type Ref{
+	amTasks: Object,
+	analysts: Object,
+	nonamTasks: Object,
+	users: Object,
+	prod: Object,
+	attendance: Object,
+	dashboard: Object
+}
+
+type User {
+	fullname: UserString,
+	ldap: LdapString,
+	name: LdapString,
+	avatar: String
+}
+
+type UserString extends String{
+	validate() { this.length > 0 && this.length < 50 }
+}
+
+type LdapString extends String{
+	validate() { this.length > 0 && this.length < 15 }
+}
+
+isCurrentUser(uid) { auth!= null && auth.uid == uid }
+isAdmin() { root.child('users').child(auth.uid).child('isAdmin').val() == true }
+isGoogle(){ (auth !== null && auth.token.email.matches(/google.com$/)) || auth.token.email == 'stonsourinc@gmail.com' }
+isResh() { auth.token.email == 'shirishs@google.com'  || auth.token.email == 'stonsourinc@gmail.com' }

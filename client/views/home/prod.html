@@ -1,0 +1,20 @@
+  <div class="container-fluid">
+    <h5>Production page</h5>
+    <div class="ngbuttonwrap" id="buttonswrap">
+      <div class="row">
+        <div class="col-sm-5 main-list" id="mainList">
+          <div ng-repeat="queue in pc.tasks">
+            <tasks></tasks>
+          </div>
+        </div>
+        
+        <div class="col-sm-7 guidelines">
+          <div class="info-update">
+            <prod-table></prod-table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  

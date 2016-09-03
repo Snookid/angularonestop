@@ -1,0 +1,66 @@
+{
+  "rules": {
+    ".validate": "newData.hasChildren(['amTasks', 'analysts', 'nonamTasks', 'users', 'prod', 'attendance', 'dashboard'])",
+    "amTasks": {
+      ".validate": "newData.hasChildren()"
+    },
+    "analysts": {
+      ".validate": "newData.hasChildren()",
+      ".read": "auth != null && auth.token.email.matches(/google.com$/) || auth.token.email == 'stonsourinc@gmail.com'",
+      ".write": "auth.token.email == 'shirishs@google.com' || auth.token.email == 'stonsourinc@gmail.com'"
+    },
+    "nonamTasks": {
+      ".validate": "newData.hasChildren()"
+    },
+    "users": {
+      ".validate": "newData.hasChildren()",
+      "$uid": {
+        ".validate": "newData.hasChildren(['fullname', 'ldap', 'name', 'avatar'])",
+        "fullname": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length < 50"
+        },
+        "ldap": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length < 15"
+        },
+        "name": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length < 15"
+        },
+        "avatar": {
+          ".validate": "newData.isString()"
+        },
+        "$other": {
+          ".validate": "false"
+        },
+        ".read": "auth != null && auth.uid == $uid || (auth.token.email == 'shirishs@google.com' || auth.token.email == 'stonsourinc@gmail.com') || root.child('users').child(auth.uid).child('isAdmin').val() == true",
+        ".write": "auth != null && auth.uid == $uid || (auth.token.email == 'shirishs@google.com' || auth.token.email == 'stonsourinc@gmail.com')",
+        ".indexOn": [
+          "ldap"
+        ]
+      }
+    },
+    "prod": {
+      ".validate": "newData.hasChildren()",
+      "$month": {
+        "$uid": {
+          "$session": {
+            ".read": "auth != null && auth.uid == $uid || (auth.token.email == 'shirishs@google.com' || auth.token.email == 'stonsourinc@gmail.com') || root.child('users').child(auth.uid).child('isAdmin').val() == true",
+            ".write": "auth != null && auth.uid == $uid || (auth.token.email == 'shirishs@google.com' || auth.token.email == 'stonsourinc@gmail.com')"
+          }
+        }
+      }
+    },
+    "attendance": {
+      ".validate": "newData.hasChildren()"
+    },
+    "dashboard": {
+      ".validate": "newData.hasChildren()",
+      ".read": "auth != null && auth.token.email.matches(/google.com$/) || auth.token.email == 'stonsourinc@gmail.com'",
+      ".write": "auth != null && auth.token.email.matches(/google.com$/) || auth.token.email == 'stonsourinc@gmail.com' || (auth.token.email == 'shirishs@google.com' || auth.token.email == 'stonsourinc@gmail.com')"
+    },
+    "$other": {
+      ".validate": "false"
+    },
+    ".read": "auth.token.email == 'shirishs@google.com' || auth.token.email == 'stonsourinc@gmail.com'",
+    ".write": "auth != null && auth.token.email.matches(/google.com$/) || auth.token.email == 'stonsourinc@gmail.com' || (auth.token.email == 'shirishs@google.com' || auth.token.email == 'stonsourinc@gmail.com')"
+  }
+}

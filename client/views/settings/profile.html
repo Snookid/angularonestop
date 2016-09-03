@@ -1,0 +1,36 @@
+<div id="profile">
+	<h4>Profile Settings</h4>
+	
+	<div class="alert alert-warning" ng-show="sc.showalert">
+		<button type="button" class="close" ng-click="sc.showalert = !sc.showalert"><span aria-hidden="true">&times;</span></button>
+		<span><i class="fa fa-info-circle"></i> This page <strong>must</strong> be updated before we can use this app.</span>
+	</div>
+	<div class="alert alert-success" ng-show="sc.saved">
+		<button type="button" class="close" ng-click="sc.saved = !sc.saved"><span aria-hidden="true">&times;</span></button>
+		<span><i class="fa fa-info-circle"></i> Your profile has been updated.</span>
+	</div>
+	<div class="alert alert-danger" ng-show="sc.couldnotsave">
+		<button type="button" class="close" ng-click="sc.couldnotsave = !sc.couldnotsave"><span aria-hidden="true">&times;</span></button>
+		<span><i class="fa fa-info-circle"></i> Something went wrong, profile could not be updated. Send the screenshot to shirishs@google.com</span>
+		<p><code ng-bind="sc.couldnotsavemsg"></code></p>
+	</div>
+	<div>
+		<form name="profileform" ng-submit="sc.updateprofile(profileform)">
+			<div class="form-group">
+			  <label for="nick">Nickname</label>
+			  <input type="text" class="form-control" id="nick" placeholder="Enter a preferred nick" ng-model="sc.fbref.nick" ng-minlength="3" required>
+			  <small id="nickhelp" class="form-text text-muted">* This is a required field.</small>
+			</div>
+
+			<div class="form-group">
+			    <label for="role">Primary Role</label>
+			    <select class="form-control" id ="role" ng-model='sc.fbref.role' ng-options="role.value as role.label disable when (role.id.indexOf(sc.profile.ldap) == -1) for role in sc.roles" required>
+			    	<option value=''>Select your primary role in GCS.</option>
+			    </select>
+			    <small id="rolehelp" class="form-text text-muted">* This is a required field.</small>
+		  	</div>
+			
+			<button type="submit" class="btn btn-primary" ng-disabled="profileform.$invalid || profileform.$pristine" >Update</button>
+		</form>
+	</div>
+</div>

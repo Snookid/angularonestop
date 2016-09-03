@@ -1,0 +1,54 @@
+  <div class="container-fluid" id="dashboard">
+    <h5>One Stop Dashboard</h5>
+    <div class="col-sm-8" id="dashboardtable">
+        <table id="prodtable" class="table table-striped table-hover">
+            <thead>
+                <tr class="prodtablehead">
+                    <th>LDAP</th>
+                    <th>Started @</th>
+                    <th>Duration</th>
+                    <th>Queue</th>
+                    <th>Comments</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-if="acitivity.startTimeDisplay" ng-repeat="activity in db.activitiesArr">
+                    <td>{{activity.ldap}}</td>
+                    <td>{{activity.startTimeDisplay}}</td>
+                    <td>{{activity.duration}}</td>
+                    <td>{{activity.workDisplay}}</td>
+                    <td>{{activity.comments}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="col-sm-4" id="dashbaordsidecontent">
+        <div class="dbsidebarcontent" id="onlineusers">
+            <h4>Logged in users: </h4>
+            <ul class="list-group userlist">
+                <span ng-if="db.onlineArr.length == 0">No online users right now.</span>
+                <li class="userlistitem" ng-repeat="user in db.onlineArr">
+                    <img class="avatar" ng-src="{{user.avatar}}" alt="user.ldap">
+                    <span>{{user.shift}}</span>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="dbsidebarcontent" id="breaksched">
+            <h4>Break Schedule: </h4>
+            <ul class="list-group userlist">
+                <span ng-if="db.breakschedArr.length == 0">No online users right now.</span>
+                <li class="userlistitem" ng-repeat="user in db.breakschedArr">
+                    <img class="avatar" ng-src="{{user.name.avatar}}" alt="user.ldap">
+                    <span>{{user.sched}}</span>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="dbsidebarcontent" ng-if="db.intprofile.role == 'TL' || db.intprofile.role == 'TC' || db.intprofile.role == 'SL'" id="breakschedform">
+            <h4>BreakSchedule form's gonna go</h4>
+            <breaksched-form></breaksched-form>
+        </div>
+    </div>
+  </div>
