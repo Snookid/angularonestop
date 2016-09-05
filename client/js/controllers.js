@@ -42,8 +42,8 @@
       });
     }
   
-    function prodControllerFn($scope, $rootScope, $state, $firebaseObject, $firebaseArray, $filter){
-        if(angular.isUndefined($rootScope.user.intprofile.role)){
+    function prodControllerFn($scope, $rootScope, $state, $firebaseObject, $interval, $firebaseArray, $filter){
+        if(angular.isUndefined($rootScope.user.intprofile.nick)){
           $state.go('settings.profile');
           return;
         }
@@ -52,7 +52,7 @@
             mo = moment().format('MMMYY'),
             session = moment().format('YYYYMMDD');
             
-            
+        console.log($rootScope.user);    
             
         if($rootScope.user.intprofile.role == 'AM') amornonam = 'amTasks';
             else amornonam = 'nonamTasks';
@@ -60,10 +60,10 @@
         var tasksref = firebase.database().ref('/'+amornonam),
 		        tasksArr = $firebaseArray(tasksref);
         
-        var prodref = firebase.database().ref('/prod/'+mo).child($rootScope.user.intprofile.$id).child(session),
+        var prodref = firebase.database().ref('/prod/'+mo).child($rootScope.user.intprofile.uid).child(session),
             masterref = prodref.child('master'),
             currentref = prodref.child('current'),
-            dbcurrentref = firebase.database().ref('/dashboard/activities').child($rootScope.user.intprofile.$id),
+            dbcurrentref = firebase.database().ref('/dashboard/activities').child($rootScope.user.intprofile.uid),
             dbcurrentobj = $firebaseObject(dbcurrentref),
             prodobj = $firebaseObject(prodref),
             currentobj = $firebaseObject(currentref),
@@ -108,7 +108,25 @@
           dbcurrentObj: dbcurrentobj,
           selected: '',
           formatfornoel: $filter('formatduration'),
-          strip: strip
+          strip: strip,
+          commentIsEditing: false
+        });
+
+        $scope.$watch(function(){return _this.currentObj.startTime;}, function(value){
+          console.log("from controller duration");
+          console.log(moment(value).fromNow()); 
+          var stopTime = $interval(updateTime, 30000);
+          
+          if(angular.isUndefined(value)){
+            $interval.cancel(stopTime);
+            stopTime = undefined;
+          }
+            
+          function updateTime(){
+            currentref.update({duration: moment(_this.currentObj.startTime).fromNow()});
+            dbcurrentref.update({duration: moment(_this.currentObj.startTime).fromNow()});
+          }
+          
         });
 
         currentobj.$loaded()
@@ -157,6 +175,7 @@
         onlineArr: $firebaseArray(dbref.child('loggedin')),
         breakschedArr: $firebaseArray(dbref.child('breaksched'))
       });
+      
     }
       
     function homecontroller($scope, $firebaseObject, $firebaseArray){
@@ -182,7 +201,7 @@
       var _this = this;
       
       angular.extend(this, {
-        todos: $firebaseArray(firebase.database().ref().child('users/'+$rootScope.user.intprofile.$id).child('todos')),
+        todos: $firebaseArray(firebase.database().ref().child('users/'+$rootScope.user.intprofile.uid).child('todos')),
         fbtodosrv: fbtodosrv,
         newtodo: '',
         head: 'TodoHolism',
@@ -221,7 +240,7 @@
         },{
           label: 'Shift Lead',
           value: 'SL',
-          id: ['jlanas', 'gepino', 'julliekeutch', 'nfelicia', 'minabangan', 'hbebida', 'mboqueo', 'cleia', 'bnabo']
+          id: ['jlanas', 'gepino', 'julliekeutch', 'nfelicia', 'minabangan', 'hbebida', 'mboqueo', 'cleia', 'bnabo', 'shirishs']
         },{
           label: 'Core Analyst',
           value: 'Core',
@@ -235,13 +254,22 @@
           label: 'Quality Analyst',
           value: 'QA'
       }];
-    
+      
+      function strip(obj){
+        var extended = (angular.extend({}, obj));
+        delete extended.$id;
+        delete extended.$priority;
+        delete extended.$$conf;
+        delete extended.$value;
+        console.log(extended);
+        return extended;
+      }      
     
     angular.extend(this, {
       showalert: true,
       profile: $rootScope.user.intprofile,
       roles: roles,
-      fbref: $firebaseObject(firebase.database().ref().child('users').child($rootScope.user.intprofile.$id)),
+      fbref: $firebaseObject(firebase.database().ref().child('users').child($rootScope.user.intprofile.uid)),
       updateprofile: updateprofile,
       saved: false,
       couldnotsave: false,
@@ -252,6 +280,7 @@
       console.log(this.fbref);
       _this.fbref.$save().then(function(baseobj) {
         if(baseobj.key === _this.fbref.$id){
+          angular.extend($rootScope.user.intprofile, strip(_this.fbref));
           profileform.$setPristine();
           _this.saved = true;
           console.log('saved');
@@ -375,7 +404,7 @@
               tc.currentObj.hasStarted = true;
               
               tc.currentObj.$save();
-              angular.extend(tc.dbcurrentObj, tc.strip(tc.currentObj), {ldap: tc.$rootScope.user.intprofile.ldap});
+              angular.extend(tc.dbcurrentObj, tc.strip(tc.currentObj), {ldap: tc.profile.ldap});
               tc.dbcurrentObj.$save();
             }
             else{

@@ -158,6 +158,9 @@ body {
   color: #dfdfdf;
   padding-left: 1.5rem; }
 
+#breaksched li .row {
+  margin: 0; }
+
 .container-fluid > h3, .container-fluid > h4, .container-fluid > h5, .container-fluid > h6 {
   font-family: "Merriweather";
   font-size: 4rem;
@@ -312,3 +315,5 @@ body {
 
 #profile .profileinfotext {
   margin-top: 2rem; }
+
+/*# sourceMappingURL=main.css.map */

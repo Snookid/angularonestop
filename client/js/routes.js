@@ -153,6 +153,14 @@
               template: '<h1>This is going to be the Settings homepage.</h1><div ui-view></div>',
               controller: 'settingscontroller as sc',
               abstract: true
+              // ,
+              // resolve: {
+              //   user: function($timeout, $firebaseObject, $rootScope){
+              //     return $timeout(function(){
+              //       $firebaseObject(firebase.database().ref('users/').child($rootScope.user.intprofile.uid))
+              //     });
+              //   }
+              // }
             })
             .state('settings.profile', {
               url: '',

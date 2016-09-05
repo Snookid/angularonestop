@@ -12,7 +12,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr ng-if="acitivity.startTimeDisplay" ng-repeat="activity in db.activitiesArr">
+                <tr ng-if="activity.startTimeDisplay" ng-repeat="activity in db.activitiesArr">
                     <td>{{activity.ldap}}</td>
                     <td>{{activity.startTimeDisplay}}</td>
                     <td>{{activity.duration}}</td>
@@ -25,7 +25,7 @@
     
     <div class="col-sm-4" id="dashbaordsidecontent">
         <div class="dbsidebarcontent" id="onlineusers">
-            <h4>Logged in users: </h4>
+            <h4>Analysts on shift: </h4>
             <ul class="list-group userlist">
                 <span ng-if="db.onlineArr.length == 0">No online users right now.</span>
                 <li class="userlistitem" ng-repeat="user in db.onlineArr">
@@ -39,9 +39,31 @@
             <h4>Break Schedule: </h4>
             <ul class="list-group userlist">
                 <span ng-if="db.breakschedArr.length == 0">No online users right now.</span>
+                <li class="userlistitem">
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <span>User</span>     
+                        </div>
+                        <div class="col-sm-5">
+                            <span>30 min Break</span>        
+                        </div>
+                        <div class="col-sm-5">
+                            <span>Lunch Break</span>        
+                        </div>
+                    </div>
+                </li>
                 <li class="userlistitem" ng-repeat="user in db.breakschedArr">
-                    <img class="avatar" ng-src="{{user.name.avatar}}" alt="user.ldap">
-                    <span>{{user.sched}}</span>
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <img class="avatar" ng-src="{{user.name.avatar}}" alt="user.ldap">        
+                        </div>
+                        <div class="col-sm-5">
+                            <span>{{user.sched}}</span>        
+                        </div>
+                        <div class="col-sm-5">
+                            <span>{{user.lunchsched}}</span>        
+                        </div>
+                    </div>
                 </li>
             </ul>
         </div>

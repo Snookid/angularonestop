@@ -246,6 +246,15 @@ $activecolor: #009688;
     }
   }
 }
+//dashboard
+#breaksched{
+  li{
+    .row{
+      margin: 0;
+    }
+  }
+}
+
 
 .container-fluid{
   > h3, > h4, > h5, > h6{

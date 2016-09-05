@@ -61,6 +61,7 @@ onestop.service('inituser', inituserFn);
 onestop.service('gapps', gappsFn);
 onestop.service('gapiAuth', gappsAuthFn);
 onestop.service('fbtodosrv', fbtodosrvFn);
+// onestop.service('strip', stripFn);
 
 
 function authenticateFn($window, $rootScope, $state, $location, validateuser, inituser, $firebaseAuth, $cookieStore){
@@ -101,18 +102,18 @@ function authenticateFn($window, $rootScope, $state, $location, validateuser, in
         console.log(firebaseUser.email);
         // if(!$rootScope.returntoState) $rootScope.returntoState = toState;
         validateuser(firebaseUser)
-          .then(function(intprofile){
-            if(intprofile === "new register"){
-              console.log('New register => send to settings');
-              $state.go('settings.profile');
-            }
+          .then(function(intprofile, newreg){
             console.log('running inituser');
             inituser(intprofile)
               .then(function(val){
                 console.log(val);
                 $rootScope.$broadcast('inituser', {user: val});
               });
-            })
+            if(newreg === "new register"){
+              console.log('New register => send to settings');
+              $state.go('settings.profile');
+            }
+          })
           .catch(function(err){
             console.log(err);
             throw err[1];
@@ -176,21 +177,23 @@ function validateuserFn($firebaseObject, $firebaseArray, $q){
             .then(function(snapshot){
               isregistered = snapshot.hasChild(authData.uid);
               if(!isregistered){
+                var user = {
+                  fullname: authData.displayName, 
+                  name: authData.displayName.split(' ')[0],
+                  ldap: ldap,
+                  avatar: authData.photoURL,
+                  uid: authData.uid
+                };
                 console.log('is not registered');
                 users.child(authData.uid)
-                  .set({
-                    fullname: authData.displayName, 
-                    name: authData.displayName.split(' ')[0],
-                    ldap: ldap,
-                    avatar: authData.photoURL
-                  }, function(err){
+                  .set(user, function(err){
                     if(err) {
                       console.log('error on adding to the users list');
                       deferred.reject(err);
                     }
                       else {
                         console.log('added to users list');
-                        deferred.resolve("new register");
+                        deferred.resolve(user, "new register");
                       }
                   });
               }

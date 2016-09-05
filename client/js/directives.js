@@ -27,9 +27,18 @@
             <tbody>
               <tr ng-if="pc.currentObj.hasStarted">
                 <td>{{pc.currentObj.startTimeDisplay}}</td>
-                <td>{{2+3}}</td>
+                <td>{{pc.currentObj.duration}}</td>
                 <td>{{pc.currentObj.workDisplay}}</td>
-                <td>{{pc.currentObj.comments}}</td>
+                <td >
+                  <div ng-switch="pc.commentIsEditing" class="input-group">
+                    <p ng-switch-default>{{pc.currentObj.comments}}</p>
+                    <input ng-blur="pc.commentIsEditing = !pc.commentIsEditing; pc.dbactivityref.update({comments: pc.currentObj.comments}); pc.currentObjref.update({comments: pc.currentObj.comments});" ng-switch-when="true" type="text" class="form-control" ng-model="pc.currentObj.comments" placeholder="Your comments on this queue">
+                    <span ng-switch-when="true" class="input-group-btn">
+                      <button class="btn btn-default" ng-click="pc.commentIsEditing = !pc.commentIsEditing; pc.dbactivityref.update({comments: pc.currentObj.comments}); pc.currentObjref.update({comments: pc.currentObj.comments});" type="button"><span class="glyphicon glyphicon-ok"></span></button>
+                    </span>
+                    <span ng-switch-default class="input-group-btn"><button class="btn btn-default" ng-click="pc.commentIsEditing = !pc.commentIsEditing" type="button" focus-form><i class="fa fa-edit"></i></button></span>
+                  </div>
+                </td>
               </tr>
               <tr ng-repeat="activity in pc.masterArr | orderBy: '-$id'">
                 <td>{{activity.startTimeDisplay}}</td>
@@ -129,7 +138,7 @@
         var mo = moment().format('MMMYY'),
             session = moment().format('YYYYMMDD');
         
-        var attendanceref = firebase.database().ref('/attendance/'+mo).child($rootScope.user.intprofile.$id).child(session),
+        var attendanceref = firebase.database().ref('/attendance/'+mo).child($rootScope.user.intprofile.uid).child(session),
             dashboardref = firebase.database().ref('/dashboard/loggedin'),
             dashboardobj = $firebaseObject(dashboardref),
             dashboardarr = $firebaseArray(dashboardref),
@@ -138,19 +147,19 @@
 
         var isloggedin;
         
-        // dashboardarr.$indexFor($rootScope.user.intprofile.$id);
+        // dashboardarr.$indexFor($rootScope.user.intprofile.uid);
         
         dashboardarr.$loaded()
           .then(function(val){
             console.log(val);
-            scope.isloggedin = (dashboardarr.$indexFor($rootScope.user.intprofile.$id) < 0) ? false : true;
+            scope.isloggedin = (dashboardarr.$indexFor($rootScope.user.intprofile.uid) < 0) ? false : true;
             console.log('$rootScope');
             scope.loginorlogout = scope.isloggedin ? 'Logout' : 'Login';
           });
         
         dashboardarr.$watch(function(event){
           console.log(event);
-          scope.isloggedin = (dashboardarr.$indexFor($rootScope.user.intprofile.$id) < 0) ? false : true;
+          scope.isloggedin = (dashboardarr.$indexFor($rootScope.user.intprofile.uid) < 0) ? false : true;
           scope.loginorlogout = scope.isloggedin ? 'Logout' : 'Login';
         });              
         
@@ -177,14 +186,14 @@
           
           attendancearr.$add(scope.details).then(function(ref){
             if(scope.isloggedin){
-                dashboardarr.$remove(dashboardarr.$getRecord($rootScope.user.intprofile.$id))
+                dashboardarr.$remove(dashboardarr.$getRecord($rootScope.user.intprofile.uid))
                   .then(function(ref){
                     console.log(dashboardarr);
                     $rootScope.$broadcast('attendance', 'loggingout');  
                   });
             } else {
                 var forloggedin = angular.extend({}, scope.details, {ldap: $rootScope.user.intprofile.ldap, avatar: $rootScope.user.intprofile.avatar});
-                dashboardref.child($rootScope.user.intprofile.$id)
+                dashboardref.child($rootScope.user.intprofile.uid)
                   .set(forloggedin, function(err){
                     if(err)console.log(err);
                     else $rootScope.$broadcast('attendance', 'loggingin');
@@ -314,9 +323,15 @@
             </div>
             
             <div class="form-group" ng-class="{ 'has-error' : breakschedform.analyst.$error.required && !breakschedform.analyst.$pristine || breakschedform.sched.$error.minlength && !breakschedform.sched.$pristine }">
-              <input type="text" class="form-control" name="sched" ng-minlength="5" ng-model="details.sched" placeholder="eg., 2-6pm" required>
+              <input type="text" class="form-control" name="sched" ng-minlength="5" ng-model="details.sched" placeholder="Specify 30min break: eg., 2-6pm" required>
               <span ng-show="breakschedform.sched.$error.required && !breakschedform.sched.$pristine" class="help-block">This is a required field.</span>
               <span ng-show="breakschedform.sched.$error.minlength && !breakschedform.sched.$pristine" class="help-block">Must be at least 5 characters.</span>
+            </div>
+            
+            <div class="form-group" ng-class="{ 'has-error' : breakschedform.analyst.$error.required && !breakschedform.analyst.$pristine || breakschedform.lunchsched.$error.minlength && !breakschedform.lunchsched.$pristine }">
+              <input type="text" class="form-control" name="lunchsched" ng-minlength="5" ng-model="details.lunchsched" placeholder="Specify Lunch break: eg., 2-6pm" required>
+              <span ng-show="breakschedform.lunchsched.$error.required && !breakschedform.lunchsched.$pristine" class="help-block">This is a required field.</span>
+              <span ng-show="breakschedform.lunchsched.$error.minlength && !breakschedform.lunchsched.$pristine" class="help-block">Must be at least 5 characters.</span>
             </div>
             
             <div class="form-group">
@@ -388,7 +403,7 @@
       	       				 		<p ng-switch-default style="margin: 1rem 1rem; text-align: left" ng-class="todo.status == 'Completed'? 'completed' : 'pending'">{{todo.content}}</p>
       	       				 		<form ng-switch-when="true" ng-submit="todo.isEditing = !todo.isEditing; tdC.fbtodosrv.complete(todo, tdC.todos);">
       	       				 			<div class="input-group">
-      										<input type="text" ng-blur="todo.isEditing = !todo.isEditing" id="js-focus" ng-model="todo.content" class="form-control">
+      										    <input type="text" ng-blur="todo.isEditing = !todo.isEditing" id="js-focus" ng-model="todo.content" class="form-control">
       	       				 			</div>
       	       				 		</form>
       	       				 		<span class="input-group-btn"><button class="btn btn-default" ng-click="todo.isEditing = !todo.isEditing" type="button" focus-form><i class="fa fa-edit"></i></button></span>
